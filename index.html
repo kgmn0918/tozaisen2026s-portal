@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splathon東西戦 2026夏</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <div class="brand"><span class="east">東</span>西戦 <span class="west">2026夏</span></div>
+    <nav class="mainnav">
+      <a href="index.html" class="active">トップ</a>
+      <a href="bracket.html">対戦表</a>
+      <a href="register.html">結果登録</a>
+      <a href="standings.html">成績</a>
+      <a href="rules.html">ルール</a>
+    </nav>
+  </div>
+  <div class="mini-gauge" id="miniGauge"></div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Splathon Community Tournament</div>
+    <h1>東西戦 〜2026 夏の陣〜</h1>
+    <div class="sub">2026年8月22日（土）22:00〜 ／ 個人エントリー・東軍 vs 西軍 団体戦</div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="eyebrow">Overview</div>
+    <h2>大会概要</h2>
+    <p class="lead">Splathonコミュニティ向けのスプラトゥーン3・1Day大会。参加者は東軍/西軍、鉄砲隊/騎馬隊に振り分けられ、隊ごとの総当たり予選を経て、東西の代表による決戦、そして最終決戦「天下分け目」で優勝軍が決まります。</p>
+
+    <div class="grid-2" style="margin-top:24px;">
+      <div class="card">
+        <table class="data">
+          <tr><th>開催日</th><td>2026年8月22日（土）22:00〜</td></tr>
+          <tr><th>方式</th><td>個人エントリー／東軍 vs 西軍 団体戦</td></tr>
+          <tr><th>使用ツール</th><td>予選：各チームのヘヤタテ／決勝：運営ヘヤタテ</td></tr>
+          <tr><th>配信</th><td>運営配信あり（Splathon限定公開）</td></tr>
+          <tr><th>運営</th><td>かがみん・いかおち・のほほ</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="font-size:1rem;">ステージ（7ステージ・おまかせロスト）</h3>
+        <p class="lead" style="font-size:0.9rem;">カジキ空港／ゴンズイ地区／デカライン高架下／ナンプラー遺跡／マサバ海峡大橋／マテガイ放水路／ヤガラ市場</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Schedule</div>
+    <h2>スケジュール</h2>
+    <div class="card">
+      <table class="data">
+        <tr><th>〜7/19</th><td>エントリー受付</td></tr>
+        <tr><th>7/26ごろ</th><td>チーム・軍発表、練習期間スタート</td></tr>
+        <tr><th>8/22（土）22:00〜</th><td>大会本番</td></tr>
+        <tr><th>8/29（土）19:00〜</th><td>打ち上げ</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Flow</div>
+    <h2>全体の流れ</h2>
+    <div class="card">
+      <table class="data">
+        <tr><th>1</th><td>隊ごとに予選（敵軍と総当たり）</td></tr>
+        <tr><th>2</th><td>騎馬隊の東西代表による決戦（予選結果でアドバンテージ発生）</td></tr>
+        <tr><th>3</th><td>鉄砲隊の東西代表による決戦（予選結果でアドバンテージ発生）</td></tr>
+        <tr><th>4</th><td>決戦2戦が1勝1敗の場合、天下分け目の最終決戦</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Next Step</div>
+    <h2>今すぐできること</h2>
+    <div class="grid-2">
+      <a href="bracket.html" class="card" style="text-decoration:none;">
+        <span class="badge">対戦表</span>
+        <h3 style="margin-top:12px;font-size:1.1rem;">自分の対戦カードを確認する</h3>
+        <p class="lead" style="font-size:0.88rem;">ラウンド・隊ごとの組み合わせを掲載しています。</p>
+      </a>
+      <a href="register.html" class="card" style="text-decoration:none;">
+        <span class="badge">結果登録</span>
+        <h3 style="margin-top:12px;font-size:1.1rem;">試合結果を登録する</h3>
+        <p class="lead" style="font-size:0.88rem;">対戦したマッチの結果を、参加者自身で登録できます。</p>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    この大会は、任天堂の協賛・提携を受けたものではありません。
+    <a href="https://www.nintendo.co.jp/tournament_guideline/rules.html" target="_blank" rel="noopener">コミュニティ大会への出場および観戦に関する規約</a>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>renderMiniGauge("miniGauge");</script>
+</body>
+</html>

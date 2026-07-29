@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成績 — Splathon東西戦 2026夏</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <div class="brand"><span class="east">東</span>西戦 <span class="west">2026夏</span></div>
+    <nav class="mainnav">
+      <a href="index.html">トップ</a>
+      <a href="bracket.html">対戦表</a>
+      <a href="register.html">結果登録</a>
+      <a href="standings.html" class="active">成績</a>
+      <a href="rules.html">ルール</a>
+    </nav>
+  </div>
+  <div class="mini-gauge" id="miniGauge"></div>
+</header>
+
+<main class="wrap" style="padding-top:48px;">
+  <div class="eyebrow">Standings</div>
+  <h1 style="font-size:2rem;">戦況</h1>
+  <p class="lead" id="publishedInfo">読み込み中…</p>
+
+  <section>
+    <div class="gauge" id="mainGauge">
+      <div class="side e" style="width:50%">東</div>
+      <div class="side w" style="width:50%">西</div>
+    </div>
+    <div class="gauge-labels">
+      <span id="eLabel">東軍 0pt</span>
+      <span id="wLabel">西軍 0pt</span>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.1rem;">隊ごとの合計ポイント</h2>
+    <div class="grid-2" id="groupCards">
+      <div class="card">読み込み中…</div>
+    </div>
+  </section>
+
+  <p class="lead" style="font-size:0.85rem;">※ 個別の試合結果は非公開です。運営が集計・公開したラウンドまでの合計ポイントのみを表示しています。</p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">この大会は、任天堂の協賛・提携を受けたものではありません。</div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>
+renderMiniGauge("miniGauge");
+
+async function loadStandings() {
+  try {
+    const data = await apiGet("standings");
+    const e = data.armyTotals?.東 || 0;
+    const w = data.armyTotals?.西 || 0;
+    const total = e + w;
+    const ePct = total === 0 ? 50 : (e / total) * 100;
+
+    document.querySelector("#mainGauge .side.e").style.width = ePct + "%";
+    document.querySelector("#mainGauge .side.w").style.width = (100 - ePct) + "%";
+    document.querySelector("#mainGauge .side.e").textContent = e;
+    document.querySelector("#mainGauge .side.w").textContent = w;
+    document.getElementById("eLabel").textContent = `東軍 ${e}pt`;
+    document.getElementById("wLabel").textContent = `西軍 ${w}pt`;
+
+    const rounds = data.publishedRounds || [];
+    document.getElementById("publishedInfo").textContent = rounds.length
+      ? `公開済みラウンド: ${rounds.join(" / ")}`
+      : "まだ公開されているラウンドはありません。運営の発表をお待ちください。";
+
+    const groupsHtml = (data.groups || []).map(g => `
+      <div class="group-card army-${g.army}">
+        <span class="badge">${g.army}軍・${g.corps}隊</span>
+        <div class="pt">${g.points}<span style="font-size:1rem;color:var(--muted);"> pt</span></div>
+      </div>
+    `).join("");
+    document.getElementById("groupCards").innerHTML = groupsHtml || "<div class='card'>データがありません。</div>";
+  } catch (err) {
+    document.getElementById("publishedInfo").textContent = "成績の読み込みに失敗しました。時間をおいて再度お試しください。";
+  }
+}
+
+loadStandings();
+</script>
+</body>
+</html>
