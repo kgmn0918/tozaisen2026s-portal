@@ -1,14 +1,13 @@
 // ============================================================
-// Splathon東西戦 2026夏 — 共通設定・APIヘルパー
+// Splathon東西戦(東西戦ポータル) — 共通設定・APIヘルパー
 // ============================================================
 
 // ★★★ ここを、GASデプロイ後に発行される Web App の URL に書き換えてください ★★★
 // 例: https://script.google.com/macros/s/AKfycb.../exec
 // const GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyNBLvFQTlxoDgLJnY7jjLAqq2rHW2aZNDF6SO3DsGXa0YZNCsgtxRQ_EZDnTpvMQZ-pA/exec";
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxKErjhCNvLgs0RAH0sIWBooyjCz6B-rpOL3YfbOTAnPWYe36u4psbs4JVaX0OMrzYq/exec";
-
-// GET リクエスト（パラメータ付き）
+// GET リクエスト
 async function apiGet(action, params = {}) {
   const url = new URL(GAS_URL);
   url.searchParams.set("action", action);
@@ -19,9 +18,7 @@ async function apiGet(action, params = {}) {
   return res.json();
 }
 
-// POST リクエスト（JSON本文）
-// Apps Script側のプリフライト回避のため text/plain で送信し、
-// サーバー側で e.postData.contents を JSON.parse する構成に合わせています。
+// POST リクエスト(text/plainで送信し、プリフライトを回避)
 async function apiPost(action, payload = {}) {
   const res = await fetch(GAS_URL, {
     method: "POST",
@@ -31,24 +28,17 @@ async function apiPost(action, payload = {}) {
   return res.json();
 }
 
-// ヘッダーのミニ戦況ゲージを更新（standings取得できるページで呼び出し）
-async function renderMiniGauge(elId) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  try {
-    const data = await apiGet("standings");
-    const e = data.armyTotals?.東 || 0;
-    const w = data.armyTotals?.西 || 0;
-    const total = e + w;
-    const ePct = total === 0 ? 50 : (e / total) * 100;
-    el.innerHTML = `<div class="e" style="width:${ePct}%"></div><div class="w" style="width:${100 - ePct}%"></div>`;
-  } catch (err) {
-    // 取得失敗時は静かに無視（設定前のプレースホルダーURLなど）
-  }
-}
-
 function showStatus(elId, message, ok = true) {
   const el = document.getElementById(elId);
+  if (!el) return;
   el.textContent = message;
   el.className = "status-msg " + (ok ? "ok" : "err");
+}
+
+// 管理者用の合言葉をセッション内に保持
+function getAdminPass() {
+  return sessionStorage.getItem("tozaisen_admin_pass") || "";
+}
+function setAdminPass(pass) {
+  sessionStorage.setItem("tozaisen_admin_pass", pass);
 }
