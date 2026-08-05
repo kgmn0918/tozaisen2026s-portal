@@ -261,24 +261,17 @@ function renderBracket() {
 
 async function loadAll() {
   try {
-    const [standings, r1, r2, r3, rep, fin, tenka] = await Promise.all([
-      apiGet("standings"),
-      apiGet("matches", { round: "1回戦" }),
-      apiGet("matches", { round: "2回戦" }),
-      apiGet("matches", { round: "3回戦" }),
-      apiGet("repInfo"),
-      apiGet("finalsInfo"),
-      apiGet("tenkawakeInfo"),
-    ]);
-    state.standings = standings;
-    state.matchesByRound = { "1回戦": r1, "2回戦": r2, "3回戦": r3 };
-    state.rep = rep;
-    state.finals = fin;
-    state.tenkawake = tenka;
+    const bundle = await apiGet("pageBundle");
+    if (bundle.error) throw new Error(bundle.error);
+    state.standings = bundle.standings;
+    state.matchesByRound = bundle.matches;
+    state.rep = bundle.rep;
+    state.finals = bundle.finals;
+    state.tenkawake = bundle.tenkawake;
     renderStandings();
     renderBracket();
   } catch (err) {
-    document.getElementById("bracketArea").innerHTML = "<p class='lead'>読み込みに失敗しました。時間をおいて再度お試しください。</p>";
+    document.getElementById("bracketArea").innerHTML = `<p class='lead'>読み込みに失敗しました(${err.message || err})。時間をおいて再度お試しください。</p>`;
   }
 }
 

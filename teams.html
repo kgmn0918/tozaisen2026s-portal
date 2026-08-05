@@ -75,7 +75,7 @@ async function render() {
       </div>
     `).join("");
   } catch (err) {
-    document.getElementById("teamsArea").innerHTML = "<p class='lead'>読み込みに失敗しました。時間をおいて再度お試しください。</p>";
+    document.getElementById("teamsArea").innerHTML = `<p class='lead'>読み込みに失敗しました(${err.message || err})。時間をおいて再度お試しください。</p>`;
   }
 }
 render();

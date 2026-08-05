@@ -7,25 +7,45 @@
 // const GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyNBLvFQTlxoDgLJnY7jjLAqq2rHW2aZNDF6SO3DsGXa0YZNCsgtxRQ_EZDnTpvMQZ-pA/exec";
 
-// GET リクエスト
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+// GET リクエスト(一時的な失敗に備えて最大3回リトライ)
 async function apiGet(action, params = {}) {
   const url = new URL(GAS_URL);
   url.searchParams.set("action", action);
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, v);
   });
-  const res = await fetch(url.toString());
-  return res.json();
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(url.toString());
+      return await res.json();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < 2) await sleep(600 * (attempt + 1));
+    }
+  }
+  throw lastErr;
 }
 
-// POST リクエスト(text/plainで送信し、プリフライトを回避)
+// POST リクエスト(text/plainで送信し、プリフライトを回避。一時的な失敗に備えて最大2回リトライ)
 async function apiPost(action, payload = {}) {
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action, ...payload }),
-  });
-  return res.json();
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action, ...payload }),
+      });
+      return await res.json();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < 1) await sleep(600);
+    }
+  }
+  throw lastErr;
 }
 
 function showStatus(elId, message, ok = true) {

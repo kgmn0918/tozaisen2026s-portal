@@ -121,48 +121,42 @@ let cache = { matches: [], rep: [], finals: [], tenkawake: null, teams: [] };
 
 async function tryLogin() {
   const pass = document.getElementById("passInput").value.trim();
-  const res = await apiGet("adminMatches", { pass });
+  const res = await apiGet("adminBundle", { pass });
   if (res.error) { showStatus("loginStatus", "合言葉が違います。", false); return; }
   PASS = pass;
   setAdminPass(pass);
   document.getElementById("loginArea").style.display = "none";
   document.getElementById("adminArea").style.display = "block";
-  await initAdmin();
-}
-document.getElementById("loginBtn").addEventListener("click", tryLogin);
-document.getElementById("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
-
-async function initAdmin() {
-  cache.teams = await apiGet("teams");
-  await Promise.all([loadPublishRound(), refreshAll()]);
+  applyBundle(res);
   document.getElementById("publishRound").addEventListener("change", async (e) => {
     await apiPost("adminSetPublishRound", { pass: PASS, value: e.target.value });
   });
 }
+document.getElementById("loginBtn").addEventListener("click", tryLogin);
+document.getElementById("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
 
-/* ---------- 公開範囲 ---------- */
-
-async function loadPublishRound() {
-  const res = await apiGet("adminPublishRound", { pass: PASS });
-  if (!res.error) document.getElementById("publishRound").value = res.value;
-}
-
-/* ---------- データ取得・再描画 ---------- */
-
-async function refreshAll() {
-  const [matches, rep, finals, tenkawake] = await Promise.all([
-    apiGet("adminMatches", { pass: PASS }),
-    apiGet("adminRep", { pass: PASS }),
-    apiGet("adminFinals", { pass: PASS }),
-    apiGet("adminTenkawake", { pass: PASS }),
-  ]);
-  cache.matches = matches;
-  cache.rep = rep;
-  cache.finals = finals;
-  cache.tenkawake = tenkawake;
+function applyBundle(bundle) {
+  cache.teams = bundle.teams;
+  cache.matches = bundle.matches;
+  cache.rep = bundle.rep;
+  cache.finals = bundle.finals;
+  cache.tenkawake = bundle.tenkawake;
+  document.getElementById("publishRound").value = bundle.publishRound;
   renderConflicts();
   renderFinalsTeam();
   renderMatchLists();
+}
+
+/* ---------- データ再取得・再描画 ---------- */
+
+async function refreshAll() {
+  try {
+    const bundle = await apiGet("adminBundle", { pass: PASS });
+    if (bundle.error) return;
+    applyBundle(bundle);
+  } catch (err) {
+    // 一時的な通信エラーは無視し、次回操作時に再取得する
+  }
 }
 
 function renderConflicts() {
