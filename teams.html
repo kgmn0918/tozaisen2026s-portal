@@ -10,7 +10,7 @@
 
 <header class="site-header">
   <div class="bar">
-    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span>西戦</span></div>
+    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span><span class="west">西</span>戦</span></div>
     <nav class="mainnav">
       <a href="index.html">トップ</a>
       <a href="overview.html">大会概要</a>
@@ -59,21 +59,26 @@ async function render() {
   try {
     const teams = await apiGet("teamsFull");
     const corpsList = ["鉄砲隊", "騎馬隊"];
-    document.getElementById("teamsArea").innerHTML = corpsList.map(corps => `
-      <div style="margin-bottom:32px;">
-        <div class="round-header">${corps}</div>
-        <div class="corps-columns">
-          <div>
+    document.getElementById("teamsArea").innerHTML = corpsList.map(corps => {
+      const westTeams = teams.filter(t => t.corps === corps && t.army === "西");
+      const eastTeams = teams.filter(t => t.corps === corps && t.army === "東");
+      const rows = Math.max(westTeams.length, eastTeams.length, 1);
+      let pairsHtml = "";
+      for (let i = 0; i < rows; i++) {
+        pairsHtml += westTeams[i] ? teamCardHtml(westTeams[i]) : "<div></div>";
+        pairsHtml += eastTeams[i] ? teamCardHtml(eastTeams[i]) : "<div></div>";
+      }
+      return `
+        <div style="margin-bottom:32px;">
+          <div class="round-header">${corps}</div>
+          <div class="corps-columns">
             <div class="corps-col-head">西軍</div>
-            ${teams.filter(t => t.corps === corps && t.army === "西").map(teamCardHtml).join("") || "<p class='lead'>未登録</p>"}
-          </div>
-          <div>
             <div class="corps-col-head">東軍</div>
-            ${teams.filter(t => t.corps === corps && t.army === "東").map(teamCardHtml).join("") || "<p class='lead'>未登録</p>"}
+            ${pairsHtml}
           </div>
         </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
   } catch (err) {
     document.getElementById("teamsArea").innerHTML = `<p class='lead'>読み込みに失敗しました(${err.message || err})。時間をおいて再度お試しください。</p>`;
   }

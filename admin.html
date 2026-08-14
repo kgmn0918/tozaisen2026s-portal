@@ -11,7 +11,7 @@
 
 <header class="site-header">
   <div class="bar">
-    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span>西戦</span> <span class="badge">ADMIN</span></div>
+    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span><span class="west">西</span>戦</span> <span class="badge">ADMIN</span></div>
     <nav class="mainnav">
       <a href="admin.html" class="active">管理トップ</a>
       <a href="admin-standings.html">チーム別成績</a>
@@ -107,6 +107,11 @@
 <!-- 詳細/登録モーダル -->
 <div class="modal-overlay" id="detailOverlay" style="display:none;" onclick="if(event.target===this) closeDetail()">
   <div class="modal-box" id="detailBox"></div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">読み込み中です...</div>
 </div>
 
 <script src="assets/app.js"></script>
@@ -311,27 +316,37 @@ async function setStream(type, key, value) {
   await refreshAll();
 }
 
+/* ---------- 読み込み中表示 ---------- */
+
+function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
 /* ---------- 予選:詳細表示 ---------- */
 
 async function openPrelimDetail(matchId) {
-  const m = cache.matches.find(x => x.match_id === matchId);
-  const res = await apiGet("adminResults", { matchId, pass: PASS });
-  const box = document.getElementById("detailBox");
-  const rows = res.sideA && res.sideA.length ? res.sideA : [];
-  box.innerHTML = `
-    <h3>${m.round} ／ ${m.corps}</h3>
-    <div class="modal-sub">${m.card}</div>
-    ${rows.length ? `
-      <table class="data" style="margin-top:16px;">
-        <thead><tr><th>#</th><th>ルール</th><th>勝利</th><th>KO</th></tr></thead>
-        <tbody>${rows.map(g => `<tr><td>${g.game_no}</td><td>${g.rule}</td><td>${g.winner_side === "A" ? m.side_a_label : m.side_b_label}</td><td>${g.ko ? "あり" : "なし"}</td></tr>`).join("")}</tbody>
-      </table>
-    ` : `<p class="lead" style="font-size:0.85rem;margin-top:16px;">まだ結果が登録されていません。</p>`}
-    <div class="modal-close-row" style="margin-top:20px;">
-      <button class="secondary small" onclick="closeDetail()">閉じる</button>
-    </div>
-  `;
-  document.getElementById("detailOverlay").style.display = "flex";
+  showLoading();
+  try {
+    const m = cache.matches.find(x => x.match_id === matchId);
+    const res = await apiGet("adminResults", { matchId, pass: PASS });
+    const box = document.getElementById("detailBox");
+    const rows = res.sideA && res.sideA.length ? res.sideA : [];
+    box.innerHTML = `
+      <h3>${m.round} ／ ${m.corps}</h3>
+      <div class="modal-sub">${m.card}</div>
+      ${rows.length ? `
+        <table class="data" style="margin-top:16px;">
+          <thead><tr><th>#</th><th>ルール</th><th>勝利</th><th>KO</th></tr></thead>
+          <tbody>${rows.map(g => `<tr><td>${g.game_no}</td><td>${g.rule}</td><td>${g.winner_side === "A" ? m.side_a_label : m.side_b_label}</td><td>${g.ko ? "あり" : "なし"}</td></tr>`).join("")}</tbody>
+        </table>
+      ` : `<p class="lead" style="font-size:0.85rem;margin-top:16px;">まだ結果が登録されていません。</p>`}
+      <div class="modal-close-row" style="margin-top:20px;">
+        <button class="secondary small" onclick="closeDetail()">閉じる</button>
+      </div>
+    `;
+    document.getElementById("detailOverlay").style.display = "flex";
+  } finally {
+    hideLoading();
+  }
 }
 
 /* ---------- 要確認:比較・修正 ---------- */
@@ -339,8 +354,10 @@ async function openPrelimDetail(matchId) {
 let conflictDraft = null;
 
 async function openConflictModal(matchId) {
+  showLoading();
   const m = cache.matches.find(x => x.match_id === matchId);
   const res = await apiGet("adminResults", { matchId, pass: PASS });
+  hideLoading();
   if (!conflictDraft || conflictDraft.id !== matchId) {
     conflictDraft = { id: matchId, games: res.sideA.map(g => ({ rule: g.rule, winner: g.winner_side, ko: !!g.ko })) };
   }
@@ -520,7 +537,9 @@ async function saveFinalsResult(corps) {
 /* ---------- 天下分け目 ---------- */
 
 async function openTenkawakeModal() {
+  showLoading();
   const t = await apiGet("adminTenkawake", { pass: PASS });
+  hideLoading();
   cache.tenkawake = t;
   const box = document.getElementById("detailBox");
 

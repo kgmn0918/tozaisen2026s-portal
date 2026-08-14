@@ -4,8 +4,7 @@
 
 // ★★★ ここを、GASデプロイ後に発行される Web App の URL に書き換えてください ★★★
 // 例: https://script.google.com/macros/s/AKfycb.../exec
-// const GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyNBLvFQTlxoDgLJnY7jjLAqq2rHW2aZNDF6SO3DsGXa0YZNCsgtxRQ_EZDnTpvMQZ-pA/exec";
+const GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
