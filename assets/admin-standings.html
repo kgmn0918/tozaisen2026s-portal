@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チーム別成績 — Splathon東西戦</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<meta name="robots" content="noindex">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span><span class="west">西</span>戦</span> <span class="badge">ADMIN</span></div>
+    <nav class="mainnav">
+      <a href="admin.html">管理トップ</a>
+      <a href="admin-standings.html" class="active">チーム別成績</a>
+      <a href="index.html">サイトへ戻る</a>
+    </nav>
+  </div>
+</header>
+<div class="hazard-strip"></div>
+
+<main class="wrap" style="padding-top:48px;">
+
+  <div id="loginArea" class="card" style="max-width:420px;">
+    <h2 style="font-size:1.1rem;">管理者ログイン</h2>
+    <label for="passInput">合言葉</label>
+    <input type="text" id="passInput" placeholder="合言葉を入力">
+    <button id="loginBtn" style="margin-top:18px;">ログイン</button>
+    <div class="status-msg" id="loginStatus"></div>
+  </div>
+
+  <div id="adminArea" style="display:none;">
+    <section>
+      <div class="eyebrow">Team Standings（管理者のみ閲覧可）</div>
+      <h2 style="font-size:1.3rem;">チーム別成績</h2>
+      <p class="lead" style="font-size:0.85rem;">軍・隊ごとにグループ分けし、①獲得pt→②勝利マッチ数→③ノックアウト数の順で順位付けしています。同点の場合は同率順位です。</p>
+      <div class="grid-2" id="teamStandingsArea" style="margin-top:16px;"></div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">この大会は、任天堂の協賛・提携を受けたものではありません。</div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>
+let PASS = "";
+
+async function tryLogin() {
+  const pass = document.getElementById("passInput").value.trim();
+  const res = await apiGet("adminTeamStandings", { pass });
+  if (res.error) { showStatus("loginStatus", "合言葉が違います。", false); return; }
+  PASS = pass;
+  setAdminPass(pass);
+  document.getElementById("loginArea").style.display = "none";
+  document.getElementById("adminArea").style.display = "block";
+  renderTeamStandings(res);
+}
+document.getElementById("loginBtn").addEventListener("click", tryLogin);
+document.getElementById("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
+
+function rankGroup(teams) {
+  const sorted = [...teams].sort((a, b) => b.pt - a.pt || b.wins - a.wins || b.ko - a.ko);
+  let rank = 1;
+  sorted.forEach((t, i) => {
+    if (i > 0) {
+      const p = sorted[i - 1];
+      if (!(t.pt === p.pt && t.wins === p.wins && t.ko === p.ko)) rank = i + 1;
+    }
+    t.rank = rank;
+  });
+  return sorted;
+}
+
+function renderTeamStandings(teamData) {
+  const groups = [
+    { corps: "鉄砲隊", army: "東" }, { corps: "鉄砲隊", army: "西" },
+    { corps: "騎馬隊", army: "東" }, { corps: "騎馬隊", army: "西" },
+  ];
+  document.getElementById("teamStandingsArea").innerHTML = groups.map(g => {
+    const list = rankGroup(teamData.filter(t => t.corps === g.corps && t.army === g.army));
+    return `
+      <div class="card">
+        <div class="rank-group">
+          <div class="rank-head">${g.corps}・${g.army}軍</div>
+          <table class="data">
+            <thead><tr><th>順位</th><th>チーム</th><th>pt</th><th>勝利</th><th>KO</th></tr></thead>
+            <tbody>
+              ${list.map(t => `
+                <tr>
+                  <td class="rank-cell">${t.rank}</td>
+                  <td>${t.team}</td>
+                  <td>${t.pt}</td>
+                  <td>${t.wins}</td>
+                  <td>${t.ko}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+const savedPass = getAdminPass();
+if (savedPass) {
+  document.getElementById("passInput").value = savedPass;
+  tryLogin();
+}
+</script>
+</body>
+</html>

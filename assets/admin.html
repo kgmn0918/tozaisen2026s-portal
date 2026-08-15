@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ページ — Splathon東西戦</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+<meta name="robots" content="noindex">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span><span class="west">西</span>戦</span> <span class="badge">ADMIN</span></div>
+    <nav class="mainnav">
+      <a href="admin.html" class="active">管理トップ</a>
+      <a href="admin-standings.html">チーム別成績</a>
+      <a href="index.html">サイトへ戻る</a>
+    </nav>
+  </div>
+</header>
+<div class="hazard-strip"></div>
+
+<main class="wrap" style="padding-top:48px;">
+
+  <div id="loginArea" class="card" style="max-width:420px;">
+    <h2 style="font-size:1.1rem;">管理者ログイン</h2>
+    <label for="passInput">合言葉</label>
+    <input type="text" id="passInput" placeholder="合言葉を入力">
+    <button id="loginBtn" style="margin-top:18px;">ログイン</button>
+    <div class="status-msg" id="loginStatus"></div>
+  </div>
+
+  <div id="adminArea" style="display:none;">
+
+    <section>
+      <div class="eyebrow">要確認</div>
+      <h2 style="font-size:1.3rem;">両軍の登録内容が一致しない対戦</h2>
+      <p class="lead" style="font-size:0.85rem;">両軍から結果登録があったものの、内容が食い違っている対戦です。下の試合一覧でも⚠マーク付きで表示されます。</p>
+      <div id="conflictArea"></div>
+    </section>
+
+    <section>
+      <div class="eyebrow">Publish Control</div>
+      <h2 style="font-size:1.3rem;">試合結果公開</h2>
+      <div class="card">
+        <label for="publishRound">公開範囲</label>
+        <select id="publishRound">
+          <option value="none">非公開</option>
+          <option value="1回戦">1回戦まで公開</option>
+          <option value="2回戦">2回戦まで公開</option>
+          <option value="代表戦">代表戦まで公開</option>
+          <option value="3回戦">3回戦まで公開</option>
+          <option value="大会終了">大会終了</option>
+        </select>
+        <p class="lead" style="font-size:0.82rem;margin-top:12px;">選択したラウンド以前の結果を含めて、成績表に反映されます。</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="eyebrow">Matches ①</div>
+      <h2 style="font-size:1.3rem;">試合一覧（1回戦〜3回戦）</h2>
+      <p class="lead" style="font-size:0.85rem;">
+        行をクリックすると詳細を確認・登録できます。代表戦の行では出場選手登録・結果登録の両方をまとめて行えます。⚠が付いている行は両軍の登録内容が一致していません。
+      </p>
+      <div class="card" style="margin-top:16px;overflow-x:auto;">
+        <table class="data" id="matchListTable1">
+          <thead><tr><th>ラウンド</th><th>隊</th><th>カード</th><th>ステータス</th><th>配信</th></tr></thead>
+          <tbody id="matchListBody1"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="eyebrow">東西決戦 出場チーム登録</div>
+      <h2 style="font-size:1.3rem;">東西決戦の出場チーム登録</h2>
+      <p class="lead" style="font-size:0.85rem;">予選を勝ち上がった代表チームを登録してください。トップページの対戦表にも反映されます。</p>
+      <div class="grid-2" id="finalsTeamArea" style="margin-top:16px;"></div>
+    </section>
+
+    <section>
+      <div class="eyebrow">Matches ②</div>
+      <h2 style="font-size:1.3rem;">試合一覧（東西決戦）</h2>
+      <p class="lead" style="font-size:0.85rem;">行をクリックすると出場チーム名の反映状況と結果登録フォームが開きます。</p>
+      <div class="card" style="margin-top:16px;overflow-x:auto;">
+        <table class="data" id="matchListTable2">
+          <thead><tr><th>ラウンド</th><th>隊</th><th>カード</th><th>ステータス</th><th>配信</th></tr></thead>
+          <tbody id="matchListBody2"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="eyebrow">運営について</div>
+      <div class="card" style="border-color:var(--west);background:rgba(36,66,124,0.05);">
+        <p class="lead" style="font-size:0.85rem;margin:0;">
+          📋 チーム名・メンバーなど<strong>大会前日までに確定する情報はスプレッドシートで管理</strong>します。<br>
+          大会当日の<strong>代表戦・東西決戦の出場者確定と結果登録は、上の「試合一覧」の行をクリックしてこのページ内で完結</strong>できるようにしています。
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<!-- 詳細/登録モーダル -->
+<div class="modal-overlay" id="detailOverlay" style="display:none;" onclick="if(event.target===this) closeDetail()">
+  <div class="modal-box" id="detailBox"></div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">読み込み中です...</div>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+const RULES = ["ガチホコ", "ガチエリア", "ガチヤグラ"];
+const FINALS_RULES = ["ガチホコ", "ガチエリア", "ガチヤグラ", "ガチホコ", "ガチエリア"];
+const CORPS = ["鉄砲隊", "騎馬隊"];
+let PASS = "";
+let cache = { matches: [], rep: [], finals: [], tenkawake: null, teams: [] };
+
+/* ---------- ログイン ---------- */
+
+async function tryLogin() {
+  const pass = document.getElementById("passInput").value.trim();
+  const res = await apiGet("adminBundle", { pass });
+  if (res.error) { showStatus("loginStatus", "合言葉が違います。", false); return; }
+  PASS = pass;
+  setAdminPass(pass);
+  document.getElementById("loginArea").style.display = "none";
+  document.getElementById("adminArea").style.display = "block";
+  applyBundle(res);
+  document.getElementById("publishRound").addEventListener("change", async (e) => {
+    await apiPost("adminSetPublishRound", { pass: PASS, value: e.target.value });
+  });
+}
+document.getElementById("loginBtn").addEventListener("click", tryLogin);
+document.getElementById("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
+
+function applyBundle(bundle) {
+  cache.teams = bundle.teams;
+  cache.matches = bundle.matches;
+  cache.rep = bundle.rep;
+  cache.finals = bundle.finals;
+  cache.tenkawake = bundle.tenkawake;
+  document.getElementById("publishRound").value = bundle.publishRound;
+  renderConflicts();
+  renderFinalsTeam();
+  renderMatchLists();
+}
+
+/* ---------- データ再取得・再描画 ---------- */
+
+async function refreshAll() {
+  try {
+    const bundle = await apiGet("adminBundle", { pass: PASS });
+    if (bundle.error) return;
+    applyBundle(bundle);
+  } catch (err) {
+    // 一時的な通信エラーは無視し、次回操作時に再取得する
+  }
+}
+
+function renderConflicts() {
+  const conflicts = cache.matches.filter(m => m.conflict);
+  document.getElementById("conflictArea").innerHTML = conflicts.length ? conflicts.map(m => `
+    <div class="conflict-item">
+      <div class="title">⚠ ${m.round}・${m.corps} — ${m.card}</div>
+      <button class="small" style="margin-top:10px;" onclick="openConflictModal('${m.match_id}')">この対戦の登録内容を見る・修正する</button>
+    </div>
+  `).join("") : `<p class="lead" style="font-size:0.85rem;">現在、要確認の対戦はありません。</p>`;
+}
+
+function finalsScore(corps) {
+  const f = cache.finals.find(x => x.corps === corps) || {};
+  const games = [f.game1, f.game2, f.game3, f.game4, f.game5];
+  let east = f.advantage === "東" ? 1 : 0;
+  let west = f.advantage === "西" ? 1 : 0;
+  let done = false;
+  for (const w of games) {
+    if (!w) continue;
+    if (done) break;
+    if (w === "東") east++; else if (w === "西") west++;
+    if (east >= 3 || west >= 3) done = true;
+  }
+  return { east, west, done };
+}
+
+function renderFinalsTeam() {
+  document.getElementById("finalsTeamArea").innerHTML = CORPS.map(corps => {
+    const f = cache.finals.find(x => x.corps === corps) || {};
+    const eastTeams = cache.teams.filter(t => t.corps === corps && t.army === "東");
+    const westTeams = cache.teams.filter(t => t.corps === corps && t.army === "西");
+    const options = (list, selected) => `
+      <option value="">選択してください</option>
+      ${list.map(t => `<option value="${t.team_name}" ${t.team_name === selected ? "selected" : ""}>${t.team_name}</option>`).join("")}
+    `;
+    return `
+      <div class="card">
+        <div class="rank-head" style="margin-bottom:10px;">${corps}</div>
+        <label style="margin-top:0;">東軍代表チーム</label>
+        <select onchange="saveFinalsTeam('${corps}', this.value, null)">${options(eastTeams, f.east_team)}</select>
+        <label>西軍代表チーム</label>
+        <select onchange="saveFinalsTeam('${corps}', null, this.value)">${options(westTeams, f.west_team)}</select>
+      </div>
+    `;
+  }).join("");
+}
+
+async function saveFinalsTeam(corps, east, west) {
+  const f = cache.finals.find(x => x.corps === corps) || {};
+  await apiPost("adminSaveFinalsTeam", {
+    pass: PASS, corps,
+    east: east !== null ? east : (f.east_team || ""),
+    west: west !== null ? west : (f.west_team || ""),
+  });
+  await refreshAll();
+}
+
+/* ---------- 試合一覧の描画 ---------- */
+
+function buildTable1Rows() {
+  const byRound = (r) => cache.matches.filter(m => m.round === r);
+  const repRows = CORPS.map(corps => {
+    const r = cache.rep.find(x => x.corps === corps) || {};
+    const eastMembers = String(r.east_players || "").split(",").filter(Boolean);
+    const westMembers = String(r.west_players || "").split(",").filter(Boolean);
+    return {
+      type: "rep", corps,
+      round: "代表戦",
+      card: `西代表(${westMembers.join("/") || "未登録"}) vs 東代表(${eastMembers.join("/") || "未登録"})`,
+      status: (r.done === true || r.done === "TRUE") ? "実施済み" : "結果登録待ち",
+      streamType: r.stream_type || "",
+      conflict: false,
+    };
+  });
+  const wrap = (list, type) => list.map(m => ({ type, ...m, streamType: m.stream_type || "", status: m.status, conflict: m.conflict }));
+  return [
+    ...wrap(byRound("1回戦"), "prelim"),
+    ...wrap(byRound("2回戦"), "prelim"),
+    ...repRows,
+    ...wrap(byRound("3回戦"), "prelim"),
+  ];
+}
+
+function buildTable2Rows() {
+  const finRows = CORPS.map(corps => {
+    const f = cache.finals.find(x => x.corps === corps) || {};
+    const score = finalsScore(corps);
+    return {
+      type: "finals", corps, round: "東西決戦",
+      card: `${f.west_team || "(西軍代表未登録)"} vs ${f.east_team || "(東軍代表未登録)"}`,
+      status: score.done ? "実施済み" : "結果登録待ち",
+      streamType: f.stream_type || "",
+      conflict: false,
+    };
+  });
+  // 表示順は騎馬隊→鉄砲隊
+  finRows.sort((a, b) => (a.corps === "騎馬隊" ? -1 : 1) - (b.corps === "騎馬隊" ? -1 : 1));
+
+  const t = cache.tenkawake || {};
+  const fireTeam = cache.finals.find(x => x.corps === "鉄砲隊") || {};
+  const tenkaRow = {
+    type: "tenkawake", corps: "-", round: "天下分け目",
+    card: `${fireTeam.west_team || "(西軍代表未登録)"} vs ${fireTeam.east_team || "(東軍代表未登録)"}`,
+    status: !t.eligible ? "対象外" : (t.decided ? "実施済み" : "結果登録待ち"),
+    streamType: t.streamType || "",
+    conflict: false,
+  };
+  return [...finRows, tenkaRow];
+}
+
+function rowHtml(m, listRef, idx) {
+  const isConflict = !!m.conflict;
+  const isNA = m.status === "対象外";
+  const cls = isConflict ? "row-conflict" : ((isNA || m.status === "実施済み") ? "row-done" : "");
+  const statusText = isConflict ? "⚠ 要確認" : m.status;
+  let clickAttr;
+  if (isConflict) clickAttr = `openConflictModal('${m.match_id}')`;
+  else if (m.type === "rep") clickAttr = `openRepModal('${m.corps}')`;
+  else if (m.type === "finals") clickAttr = `openFinalsModal('${m.corps}')`;
+  else if (m.type === "tenkawake") clickAttr = `openTenkawakeModal()`;
+  else clickAttr = `openPrelimDetail('${m.match_id}')`;
+
+  const streamSelect = `
+    <select onchange="event.stopPropagation(); setStream('${m.type}','${m.type === 'prelim' ? m.match_id : m.corps}', this.value)">
+      <option value="" ${!m.streamType ? "selected" : ""}>配信なし</option>
+      <option value="main" ${m.streamType === "main" ? "selected" : ""}>運営メイン配信</option>
+      <option value="sub" ${m.streamType === "sub" ? "selected" : ""}>運営サブ配信</option>
+    </select>
+  `;
+  return `
+    <tr class="${cls}" onclick="${clickAttr}" style="cursor:pointer;">
+      <td>${m.round}</td>
+      <td>${m.corps}</td>
+      <td>${m.card}</td>
+      <td>${statusText}</td>
+      <td onclick="event.stopPropagation();">${streamSelect}</td>
+    </tr>
+  `;
+}
+
+function renderMatchLists() {
+  document.getElementById("matchListBody1").innerHTML = buildTable1Rows().map(m => rowHtml(m)).join("");
+  document.getElementById("matchListBody2").innerHTML = buildTable2Rows().map(m => rowHtml(m)).join("");
+}
+
+async function setStream(type, key, value) {
+  if (type === "prelim") await apiPost("adminSetMatchStream", { pass: PASS, match_id: key, streamType: value });
+  else if (type === "rep") await apiPost("adminSetRepStream", { pass: PASS, corps: key, streamType: value });
+  else if (type === "finals") await apiPost("adminSetFinalsStream", { pass: PASS, corps: key, streamType: value });
+  else if (type === "tenkawake") await apiPost("adminSetTenkawakeStream", { pass: PASS, streamType: value });
+  await refreshAll();
+}
+
+/* ---------- 読み込み中表示 ---------- */
+
+function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
+/* ---------- 予選:詳細表示 ---------- */
+
+async function openPrelimDetail(matchId) {
+  showLoading();
+  try {
+    const m = cache.matches.find(x => x.match_id === matchId);
+    const res = await apiGet("adminResults", { matchId, pass: PASS });
+    const box = document.getElementById("detailBox");
+    const rows = res.sideA && res.sideA.length ? res.sideA : [];
+    box.innerHTML = `
+      <h3>${m.round} ／ ${m.corps}</h3>
+      <div class="modal-sub">${m.card}</div>
+      ${rows.length ? `
+        <table class="data" style="margin-top:16px;">
+          <thead><tr><th>#</th><th>ルール</th><th>勝利</th><th>KO</th></tr></thead>
+          <tbody>${rows.map(g => `<tr><td>${g.game_no}</td><td>${g.rule}</td><td>${g.winner_side === "A" ? m.side_a_label : m.side_b_label}</td><td>${g.ko ? "あり" : "なし"}</td></tr>`).join("")}</tbody>
+        </table>
+      ` : `<p class="lead" style="font-size:0.85rem;margin-top:16px;">まだ結果が登録されていません。</p>`}
+      <div class="modal-close-row" style="margin-top:20px;">
+        <button class="secondary small" onclick="closeDetail()">閉じる</button>
+      </div>
+    `;
+    document.getElementById("detailOverlay").style.display = "flex";
+  } finally {
+    hideLoading();
+  }
+}
+
+/* ---------- 要確認:比較・修正 ---------- */
+
+let conflictDraft = null;
+
+async function openConflictModal(matchId) {
+  showLoading();
+  const m = cache.matches.find(x => x.match_id === matchId);
+  const res = await apiGet("adminResults", { matchId, pass: PASS });
+  hideLoading();
+  if (!conflictDraft || conflictDraft.id !== matchId) {
+    conflictDraft = { id: matchId, games: res.sideA.map(g => ({ rule: g.rule, winner: g.winner_side, ko: !!g.ko })) };
+  }
+  const eastLabel = m.side_a_label; // 東軍(データ上のside A)
+  const westLabel = m.side_b_label; // 西軍(データ上のside B)
+  const box = document.getElementById("detailBox");
+  box.innerHTML = `
+    <h3>要確認：${m.round} ／ ${m.corps}</h3>
+    <div class="modal-sub">${m.card}</div>
+    <p class="lead" style="font-size:0.82rem;margin-top:14px;">① 双方の報告内容を確認してください。食い違っている箇所は赤色で表示されています。</p>
+    <table class="data" style="margin-top:8px;">
+      <thead><tr><th>#</th><th>ルール(${westLabel}報告)</th><th>ルール(${eastLabel}報告)</th><th>勝利(${westLabel}報告)</th><th>勝利(${eastLabel}報告)</th></tr></thead>
+      <tbody>
+        ${res.sideA.map((gA, i) => {
+          const gB = res.sideB[i] || {};
+          const ruleDiff = gA.rule !== gB.rule;
+          const winnerDiff = gA.winner_side !== gB.winner_side;
+          return `<tr>
+            <td>${i+1}</td>
+            <td class="${ruleDiff ? "diff-cell" : ""}">${gB.rule || ""}</td>
+            <td class="${ruleDiff ? "diff-cell" : ""}">${gA.rule}</td>
+            <td class="${winnerDiff ? "diff-cell" : ""}">${gB.winner_side ? (gB.winner_side === "A" ? eastLabel : westLabel) : ""}</td>
+            <td class="${winnerDiff ? "diff-cell" : ""}">${gA.winner_side === "A" ? eastLabel : westLabel}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+    <p class="lead" style="font-size:0.82rem;margin-top:20px;">② 確認のうえ、正しい内容を選んで登録してください。</p>
+    ${conflictDraft.games.map((g, i) => `
+      <div style="margin-top:${i===0?10:14}px;padding-top:${i===0?0:14}px;${i===0?"":"border-top:1px dashed var(--border);"}">
+        <strong style="font-size:0.85rem;">${i+1}試合目</strong>
+        <label>使用ルール</label>
+        <select onchange="conflictDraft.games[${i}].rule = this.value;">
+          ${RULES.map(r => `<option value="${r}" ${g.rule === r ? "selected" : ""}>${r}</option>`).join("")}
+        </select>
+        <label>勝利した軍</label>
+        <div class="radio-row">
+          <label class="chip"><input type="radio" name="cw${i}" ${g.winner === "B" ? "checked" : ""} onchange="conflictDraft.games[${i}].winner='B';"> ${westLabel}</label>
+          <label class="chip"><input type="radio" name="cw${i}" ${g.winner === "A" ? "checked" : ""} onchange="conflictDraft.games[${i}].winner='A';"> ${eastLabel}</label>
+        </div>
+        <label class="chip" style="width:fit-content;margin-top:10px;">
+          <input type="checkbox" ${g.ko ? "checked" : ""} onchange="conflictDraft.games[${i}].ko = this.checked;"> ノックアウトあり
+        </label>
+      </div>
+    `).join("")}
+    <div class="modal-close-row" style="gap:8px;margin-top:22px;">
+      <button class="secondary small" onclick="conflictDraft=null; closeDetail();">キャンセル</button>
+      <button class="small" onclick="resolveConflict('${matchId}')">この内容を正として確定する</button>
+    </div>
+  `;
+  document.getElementById("detailOverlay").style.display = "flex";
+}
+
+async function resolveConflict(matchId) {
+  const games = conflictDraft.games.map((g, i) => ({ game_no: i + 1, rule: g.rule, winner_side: g.winner, ko: g.ko }));
+  await apiPost("adminResolveConflict", { pass: PASS, match_id: matchId, games });
+  conflictDraft = null;
+  closeDetail();
+  await refreshAll();
+}
+
+/* ---------- 代表戦:出場選手+結果 ---------- */
+
+async function openRepModal(corps) {
+  const r = cache.rep.find(x => x.corps === corps) || {};
+  const east = String(r.east_players || "").split(",");
+  const west = String(r.west_players || "").split(",");
+  while (east.length < 4) east.push("");
+  while (west.length < 4) west.push("");
+  const box = document.getElementById("detailBox");
+  box.innerHTML = `
+    <h3>代表戦：${corps}</h3>
+    <div class="modal-sub">出場選手登録 と 結果登録 をまとめて行えます</div>
+    <div style="margin-top:18px;">
+      <strong style="font-size:0.9rem;">① 出場選手登録</strong>
+      <label>東軍代表メンバー</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="repEastInputs">
+        ${east.map((v, i) => `<input type="text" placeholder="選手${i+1}" value="${v}">`).join("")}
+      </div>
+      <label>西軍代表メンバー</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="repWestInputs">
+        ${west.map((v, i) => `<input type="text" placeholder="選手${i+1}" value="${v}">`).join("")}
+      </div>
+      <button class="small secondary" style="margin-top:12px;" onclick="saveRepLineup('${corps}')">選手登録を保存</button>
+    </div>
+    <div style="margin-top:22px;padding-top:18px;border-top:1px dashed var(--border);">
+      <strong style="font-size:0.9rem;">② 結果登録</strong>
+      <label>使用ルール</label>
+      <select id="repRuleSelect">
+        ${RULES.map(rr => `<option value="${rr}" ${(r.rule || "ガチホコ") === rr ? "selected" : ""}>${rr}</option>`).join("")}
+      </select>
+      <label>勝利した軍</label>
+      <div class="radio-row">
+        <label class="chip"><input type="radio" name="repWinnerModal" value="東" ${r.winner === "東" ? "checked" : ""}> 東軍</label>
+        <label class="chip"><input type="radio" name="repWinnerModal" value="西" ${r.winner === "西" ? "checked" : ""}> 西軍</label>
+      </div>
+      ${(r.done === true || r.done === "TRUE") ? `<span class="badge" style="margin-top:10px;display:inline-block;">確定済み</span>` : ""}
+    </div>
+    <div class="modal-close-row" style="gap:8px;margin-top:22px;">
+      <button class="secondary small" onclick="closeDetail()">閉じる</button>
+      <button class="small" onclick="saveRepResult('${corps}')">この内容で確定する</button>
+    </div>
+  `;
+  document.getElementById("detailOverlay").style.display = "flex";
+}
+
+async function saveRepLineup(corps) {
+  const east = Array.from(document.querySelectorAll("#repEastInputs input")).map(i => i.value);
+  const west = Array.from(document.querySelectorAll("#repWestInputs input")).map(i => i.value);
+  await apiPost("adminSaveRepLineup", { pass: PASS, corps, east, west });
+  await refreshAll();
+  openRepModal(corps);
+}
+
+async function saveRepResult(corps) {
+  const rule = document.getElementById("repRuleSelect").value;
+  const winnerInput = document.querySelector('input[name="repWinnerModal"]:checked');
+  if (!winnerInput) { alert("勝利した軍を選択してください"); return; }
+  await apiPost("adminSaveRepResult", { pass: PASS, corps, rule, winner: winnerInput.value });
+  await refreshAll();
+  openRepModal(corps);
+}
+
+/* ---------- 東西決戦:結果登録 ---------- */
+
+async function openFinalsModal(corps) {
+  const f = cache.finals.find(x => x.corps === corps) || {};
+  const games = [f.game1, f.game2, f.game3, f.game4, f.game5];
+  const score = finalsScore(corps);
+  const box = document.getElementById("detailBox");
+  box.innerHTML = `
+    <h3>東西決戦：${corps}</h3>
+    <div class="modal-sub">${f.west_team || "(西軍代表未登録)"} vs ${f.east_team || "(東軍代表未登録)"}</div>
+    <label style="margin-top:16px;">予選アドバンテージ</label>
+    <select id="finAdvantage">
+      <option value="なし" ${(f.advantage || "なし") === "なし" ? "selected" : ""}>なし</option>
+      <option value="東" ${f.advantage === "東" ? "selected" : ""}>東軍に1勝</option>
+      <option value="西" ${f.advantage === "西" ? "selected" : ""}>西軍に1勝</option>
+    </select>
+    <table class="data" style="margin-top:14px;">
+      <thead><tr><th>#</th><th>ルール</th><th>勝利した軍</th></tr></thead>
+      <tbody>
+        ${FINALS_RULES.map((rule, i) => `
+          <tr>
+            <td>${i+1}</td>
+            <td>${rule}</td>
+            <td>
+              <select class="finGameSelect" data-i="${i}" ${score.done && !games[i] ? "disabled" : ""}>
+                <option value="" ${!games[i] ? "selected" : ""}>未実施</option>
+                <option value="東" ${games[i] === "東" ? "selected" : ""}>東軍</option>
+                <option value="西" ${games[i] === "西" ? "selected" : ""}>西軍</option>
+              </select>
+            </td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+    <div class="status-banner" style="margin-top:14px;">
+      <span class="dot"></span>現在のスコア　東 ${score.east} - ${score.west} 西　${score.done ? "(決着)" : ""}
+    </div>
+    <div class="modal-close-row" style="margin-top:20px;">
+      <button class="secondary small" onclick="closeDetail()">閉じる</button>
+      <button class="small" onclick="saveFinalsResult('${corps}')">保存する</button>
+    </div>
+  `;
+  document.getElementById("detailOverlay").style.display = "flex";
+}
+
+async function saveFinalsResult(corps) {
+  const advantage = document.getElementById("finAdvantage").value;
+  const games = Array.from(document.querySelectorAll(".finGameSelect")).map(s => s.value);
+  await apiPost("adminSaveFinalsResult", { pass: PASS, corps, advantage, games });
+  await refreshAll();
+  openFinalsModal(corps);
+}
+
+/* ---------- 天下分け目 ---------- */
+
+async function openTenkawakeModal() {
+  showLoading();
+  const t = await apiGet("adminTenkawake", { pass: PASS });
+  hideLoading();
+  cache.tenkawake = t;
+  const box = document.getElementById("detailBox");
+
+  if (!t.eligible) {
+    box.innerHTML = `
+      <h3>天下分け目の最終決戦</h3>
+      <div class="modal-sub">対象外</div>
+      <p class="lead" style="font-size:0.85rem;margin-top:14px;">
+        東西決戦(騎馬隊・鉄砲隊)の結果が1勝1敗になった場合のみ開催されます。
+      </p>
+      <div class="modal-close-row" style="margin-top:20px;">
+        <button class="secondary small" onclick="closeDetail()">閉じる</button>
+      </div>
+    `;
+    document.getElementById("detailOverlay").style.display = "flex";
+    return;
+  }
+
+  const fireTeam = cache.finals.find(x => x.corps === "鉄砲隊") || {};
+  const requiredNote = t.trailing
+    ? `${t.trailing}軍が${t.required}連勝すれば逆転優勝、その前に${t.leader}軍が1勝すれば${t.leader}軍の優勝です。`
+    : `開始時点は同点のため、最初に勝利した軍がそのまま優勝となります。`;
+  box.innerHTML = `
+    <h3>天下分け目の最終決戦</h3>
+    <div class="modal-sub">${fireTeam.west_team || "(西軍代表未登録)"} vs ${fireTeam.east_team || "(東軍代表未登録)"}（東西決戦・鉄砲隊の出場チームがそのまま出場）</div>
+    <p class="lead" style="font-size:0.82rem;margin-top:12px;">
+      東西決戦(騎馬隊+鉄砲隊)の合計勝利試合数を開始スコアとして引き継ぎます。${requiredNote}
+    </p>
+    <div class="status-banner" style="margin-top:14px;">
+      <span class="dot"></span>開始時点　東 ${t.startEast} - ${t.startWest} 西　${t.decided ? `　— ${t.winner}軍優勝(確定)` : (t.streak > 0 ? `　現在 ${t.streakSide}軍 ${t.streak}連勝中` : "")}
+    </div>
+    ${!t.decided ? `
+      <label style="margin-top:16px;">試合結果を1件追加</label>
+      <div class="radio-row">
+        <label class="chip"><input type="radio" name="tenkaWinner" value="東"> 東軍の勝ち</label>
+        <label class="chip"><input type="radio" name="tenkaWinner" value="西"> 西軍の勝ち</label>
+      </div>
+      <button class="small" style="margin-top:12px;" onclick="addTenkawakeGame()">この結果を追加する</button>
+    ` : `<p class="lead" style="font-size:0.82rem;margin-top:14px;">優勝が確定していますが、誤登録があれば下の一覧から該当の試合を取り消して修正できます。</p>`}
+    ${t.games && t.games.length ? `
+      <table class="data" style="margin-top:16px;">
+        <thead><tr><th>#</th><th>勝利した軍</th><th></th></tr></thead>
+        <tbody>
+          ${t.games.map((w, i) => `
+            <tr><td>${i+1}</td><td>${w}</td><td><button class="secondary small" onclick="removeTenkawakeGame(${i})">取消</button></td></tr>
+          `).join("")}
+        </tbody>
+      </table>
+    ` : ""}
+    <div class="modal-close-row" style="margin-top:20px;">
+      <button class="secondary small" onclick="closeDetail()">閉じる</button>
+    </div>
+  `;
+  document.getElementById("detailOverlay").style.display = "flex";
+}
+
+async function addTenkawakeGame() {
+  const checked = document.querySelector('input[name="tenkaWinner"]:checked');
+  if (!checked) { alert("勝利した軍を選択してください"); return; }
+  await apiPost("adminAddTenkawakeGame", { pass: PASS, winner: checked.value });
+  await refreshAll();
+  openTenkawakeModal();
+}
+
+async function removeTenkawakeGame(i) {
+  await apiPost("adminRemoveTenkawakeGame", { pass: PASS, index: i });
+  await refreshAll();
+  openTenkawakeModal();
+}
+
+function closeDetail() {
+  conflictDraft = null;
+  document.getElementById("detailOverlay").style.display = "none";
+}
+
+// セッション内に合言葉があれば自動ログイン
+const savedPass = getAdminPass();
+if (savedPass) {
+  document.getElementById("passInput").value = savedPass;
+  tryLogin();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+/* ============================================================
+   Splathon東西戦 2026夏 — モックアップ v4
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+/* デジタル時計風フォント(DSEG7 Classic / SIL Open Font License) */
+@font-face {
+  font-family: 'DSEG7 Classic';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/dseg7-classic@latest/latin-400-normal.woff2) format('woff2'),
+       url(https://cdn.jsdelivr.net/fontsource/fonts/dseg7-classic@latest/latin-400-normal.woff) format('woff');
+}
+@font-face {
+  font-family: 'DSEG7 Classic';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/dseg7-classic@latest/latin-700-normal.woff2) format('woff2'),
+       url(https://cdn.jsdelivr.net/fontsource/fonts/dseg7-classic@latest/latin-700-normal.woff) format('woff');
+}
+
+:root {
+  --bg: #fffffa;
+  --bg-deep: #f4f2e6;
+  --surface: #ffffff;
+  --border: #e6e3d0;
+  --ink: #262523;
+  --muted: #857d64;
+  --paper: #fffaf0;
+
+  --east: #2f5fd6;
+  --east-deep: #1e3f99;
+  --west: #d9481f;
+  --west-deep: #a8360f;
+  --alert: #c0392b;
+  --alert-deep: #8f2318;
+  --gold: #f0b92e;
+  --gold-deep: #b9860c;
+
+  --font-display: 'M PLUS Rounded 1c', 'Zen Kaku Gothic New', sans-serif;
+  --font-body: 'Zen Kaku Gothic New', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-digital: 'DSEG7 Classic', 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.02em; margin: 0 0 0.5em; line-height: 1.3; }
+.mono { font-family: var(--font-mono); }
+
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- ヘッダー ---------- */
+
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(251, 244, 228, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+.site-header .bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 24px; max-width: 980px; margin: 0 auto; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.05rem; white-space: nowrap; }
+.brand img { height: 32px; width: auto; }
+/* 東/西の色分けspanをテキストごと1つのflexアイテムにまとめ、gapによる不要な空白を防ぐ */
+.brand .brand-text { display: inline-block; }
+.brand .east { color: var(--east); }
+.brand .west { color: var(--west); }
+.brand .west { color: var(--west); }
+
+nav.mainnav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav.mainnav a {
+  text-decoration: none; font-size: 0.85rem; color: var(--muted);
+  padding: 8px 12px; border-radius: 999px; transition: 0.15s;
+}
+nav.mainnav a:hover, nav.mainnav a.active { color: var(--ink); background: var(--gold); }
+
+.hazard-strip {
+  height: 7px;
+  background: repeating-linear-gradient(135deg, var(--gold) 0 18px, #241f0f 18px 36px);
+}
+
+main { padding: 40px 0 96px; }
+section { margin-bottom: 56px; }
+
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em; color: var(--gold-deep); text-transform: uppercase; margin-bottom: 8px; }
+.lead { color: var(--muted); font-size: 1.02rem; max-width: 640px; }
+
+/* ---------- ヒーロー(さらにコンパクト・視認性UP) ---------- */
+
+.hero {
+  position: relative; min-height: 100px; display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden; isolation: isolate; text-align: center;
+}
+.hero::before, .hero::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60%; z-index: -3; }
+.hero::before { left: 0; background: linear-gradient(135deg, var(--east-deep), var(--east) 75%); clip-path: polygon(0 0, 58% 0, 42% 100%, 0 100%); }
+.hero::after { right: 0; background: linear-gradient(315deg, var(--west-deep), var(--west) 75%); clip-path: polygon(100% 0, 42% 0, 58% 100%, 100% 100%); }
+
+.hero .seam {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 40px; transform: translateX(-50%) skewX(-14deg);
+  background: repeating-linear-gradient(135deg, var(--gold) 0 12px, #241f0f 12px 24px);
+  z-index: -2;
+}
+/* 全体に均一な暗みを乗せてコントラストを安定させる */
+.hero .scrim { position: absolute; inset: 0; background: rgba(10,10,14,0.28); z-index: -1; }
+
+.hero .hero-inner { padding: 14px 24px; max-width: 980px; margin: 0 auto; width: 100%; }
+
+/* すりガラス風パネルにロゴ+タイトルを乗せて視認性を確保 */
+.hero .glass-panel {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: rgba(10, 10, 14, 0.38);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  padding: 8px 22px 8px 8px;
+}
+.hero img.logo { width: 52px; margin: 0; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4)); }
+.hero h1 {
+  font-size: clamp(1.05rem, 2.6vw, 1.4rem);
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  margin: 0;
+  font-weight: 700;
+}
+
+/* ---------- ステータスバナー ---------- */
+
+.status-banner {
+  text-align: center;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-weight: 700;
+}
+.status-banner .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gold); margin-right:8px; }
+
+/* ---------- ステータスステッパー(現在の進行状況) ---------- */
+
+.stepper {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+.stepper .step {
+  flex: 1 1 0;
+  min-width: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 14px 10px 14px 22px;
+  position: relative;
+  white-space: nowrap;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+  margin-right: -12px;
+}
+.stepper .step:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); padding-left: 14px; }
+.stepper .step:last-child { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); margin-right: 0; }
+
+.stepper .step.upcoming { background: var(--bg-deep); color: var(--muted); }
+.stepper .step.done { background: #c9c2a3; color: var(--surface); }
+.stepper .step.active { background: var(--gold); color: var(--ink); font-size: 0.8rem; }
+.stepper .step .check { margin-right: 4px; }
+
+@media (max-width: 640px) {
+  .stepper .step { min-width: 78px; font-size: 0.68rem; padding: 12px 6px 12px 18px; }
+  .stepper .step.active { font-size: 0.72rem; }
+}
+
+/* ---------- カード ---------- */
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 720px) { .grid-2, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } }
+
+table.data { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+table.data th, table.data td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+table.data th { color: var(--muted); font-weight: 500; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ---------- 成績ブロック(隊単位) ---------- */
+
+.corps-block { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.corps-block .head { padding: 12px 20px; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--border); }
+.corps-block .row { display: flex; }
+.corps-block .side { flex: 1; padding: 20px 16px; text-align: center; }
+.corps-block .side.e { background: linear-gradient(180deg, rgba(217,72,31,0.08), transparent); }
+.corps-block .side.w { background: linear-gradient(180deg, rgba(36,66,124,0.09), transparent); }
+.corps-block .side .army { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+.corps-block .side .pt { font-family: var(--font-digital); font-size: 3.4rem; font-weight: 700; margin-top: 4px; letter-spacing: 0.02em; }
+.corps-block .side.e .pt { color: var(--east); }
+.corps-block .side.w .pt { color: var(--west); }
+
+.standings-footer { padding: 14px 20px; border-top: 1px solid var(--border); }
+
+/* ---------- 対戦カード ---------- */
+
+.corps-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; min-width: 0; }
+.corps-columns > * { min-width: 0; }
+@media (max-width: 640px) { .corps-columns { grid-template-columns: 1fr; } }
+.corps-col-head { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; letter-spacing: 0.05em; }
+
+.match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+.match-card .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.match-teams { font-size: 1.02rem; font-weight: 700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.match-teams .e { color: var(--east); }
+.match-teams .w { color: var(--west); }
+.match-teams .vs { color: var(--muted); font-weight: 400; font-size: 0.85rem; padding: 0 2px; }
+
+.pill-group { display:flex; gap:8px; align-items:center; flex-wrap:wrap; flex-basis: 100%; justify-content: flex-start; }
+
+.status-pill { font-family: var(--font-mono); font-size: 0.72rem; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+.status-pill.pending { background: rgba(240,185,46,0.18); color: var(--gold-deep); border: 1px solid var(--gold-deep); }
+.status-pill.done { background: rgba(38,37,35,0.06); color: var(--muted); border: 1px solid var(--border); }
+.status-pill.stream-main { background: rgba(36,66,124,0.09); color: var(--west); border: 1px solid var(--west); }
+.status-pill.stream-sub { background: rgba(217,72,31,0.09); color: var(--east-deep); border: 1px solid var(--east); }
+.status-pill.admin { background: rgba(38,37,35,0.05); color: var(--muted); border: 1px dashed var(--border); }
+
+/* ラウンド見出し(横幅いっぱいのバー) */
+.round-header {
+  background: var(--ink); color: var(--paper);
+  font-family: var(--font-mono); font-size: 0.85rem; letter-spacing: 0.06em;
+  padding: 10px 18px; border-radius: 10px; margin-bottom: 14px;
+}
+
+.reg-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- 登録ポップアップ(モーダル) ---------- */
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(20,18,10,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px;
+}
+.modal-box {
+  background: var(--surface); border-radius: 18px; padding: 28px;
+  max-width: 440px; width: 100%; max-height: 88vh; overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+.modal-box h3 { font-size: 1.15rem; margin-bottom: 4px; }
+.modal-box .modal-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 18px; }
+.modal-close-row { display: flex; justify-content: flex-end; }
+
+.fixed-rule-note {
+  font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink);
+  background: var(--bg-deep); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 14px; margin-top: 6px;
+}
+
+/* ---------- フォーム ---------- */
+
+label { display: block; font-size: 0.85rem; color: var(--muted); margin: 16px 0 6px; }
+select, input[type="text"] {
+  width: 100%; background: var(--bg-deep); border: 1px solid var(--border); color: var(--ink);
+  padding: 11px 14px; border-radius: 8px; font-family: var(--font-body); font-size: 0.92rem;
+}
+select:focus, input:focus, button:focus, a:focus { outline: 2px solid var(--gold-deep); outline-offset: 2px; }
+
+.radio-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.radio-row label.chip { margin: 0; border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: 0.82rem; color: var(--ink); display: flex; align-items: center; gap: 6px; background: var(--surface); }
+.radio-row input[type="radio"] { accent-color: var(--gold-deep); }
+
+button, .btn {
+  font-family: var(--font-body); font-weight: 700; background: var(--gold); color: var(--ink);
+  border: none; padding: 11px 22px; border-radius: 999px; cursor: pointer; font-size: 0.88rem;
+  display: inline-block; text-decoration: none; transition: transform 0.12s;
+}
+button:hover, .btn:hover { transform: translateY(-1px); }
+button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+button.small { padding: 7px 16px; font-size: 0.78rem; }
+button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.status-msg { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; display: none; }
+.status-msg.ok { display: block; background: rgba(240,185,46,0.15); border: 1px solid var(--gold-deep); color: var(--gold-deep); }
+.status-msg.err { display: block; background: rgba(192,57,43,0.1); border: 1px solid var(--alert); color: var(--alert-deep); }
+
+.badge { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; padding: 3px 10px; border-radius: 999px; background: var(--bg-deep); color: var(--muted); border: 1px solid var(--border); }
+
+footer.site-footer { border-top: 1px solid var(--border); padding: 32px 0; color: var(--muted); font-size: 0.8rem; }
+
+.stage-thumb {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: zoom-in;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.stage-thumb:hover { transform: scale(1.015); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+
+/* ---------- 管理者ページ用 ---------- */
+
+.conflict-item { border: 1px solid var(--alert); background: rgba(192,57,43,0.06); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
+.conflict-item .title { font-weight: 700; color: var(--alert-deep); font-size: 0.9rem; }
+
+.rank-group { margin-bottom: 24px; }
+.rank-group .rank-head { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
+.rank-cell { font-weight: 700; }
+
+tr.row-done { background: var(--bg-deep); }
+tr.row-done td { color: var(--muted); }
+tr.row-conflict { background: rgba(192,57,43,0.10); }
+tr.row-conflict td { color: var(--alert-deep); font-weight: 700; }
+
+.diff-cell { background: rgba(192,57,43,0.15); color: var(--alert-deep); font-weight: 700; border-radius: 4px; }
+
+/* ---------- チーム一覧 ---------- */
+
+.team-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; box-sizing: border-box; height: 100%; min-width: 0; overflow-wrap: anywhere; }
+.team-card .team-name { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 6px; overflow-wrap: anywhere; }
+.team-card .team-name.e { color: var(--east); }
+.team-card .team-name.w { color: var(--west); }
+.team-card .players { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; overflow-wrap: anywhere; }
+.spot-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 0; }
+@media (max-width: 560px) { .spot-list { grid-template-columns: 1fr; } }
+.spot-item { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; min-width: 0; overflow-wrap: anywhere; }
+.spot-item .spot-name { font-weight: 700; font-size: 0.85rem; }
+.spot-item .spot-reason { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.spot-item .spot-map-link { display: inline-block; margin-top: 6px; font-size: 0.75rem; color: var(--west); text-decoration: none; border-bottom: 1px solid var(--west); }
+.spot-item .spot-map-link:hover { color: var(--west-deep); border-color: var(--west-deep); }
+
+/* ---------- 読み込み中オーバーレイ(管理画面) ---------- */
+
+.loading-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(38,37,35,0.45);
+  display: none; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px;
+}
+.loading-overlay.show { display: flex; }
+.loading-overlay .spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.35); border-top-color: var(--paper);
+  animation: loading-spin 0.8s linear infinite;
+}
+.loading-overlay .loading-text { color: var(--paper); font-family: var(--font-mono); font-size: 0.85rem; }
+@keyframes loading-spin { to { transform: rotate(360deg); } }

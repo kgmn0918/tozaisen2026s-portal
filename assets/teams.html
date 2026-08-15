@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チーム一覧 — Splathon東西戦</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <div class="brand"><img src="assets/logo.png" alt="Splathon東西戦ロゴ"><span class="brand-text"><span class="east">東</span><span class="west">西</span>戦</span></div>
+    <nav class="mainnav">
+      <a href="index.html">トップ</a>
+      <a href="overview.html">大会概要</a>
+      <a href="teams.html" class="active">チーム一覧</a>
+    </nav>
+  </div>
+</header>
+<div class="hazard-strip"></div>
+
+<main class="wrap" style="padding-top:48px;">
+  <div class="eyebrow">Teams</div>
+  <h1 style="font-size:2rem;">チーム一覧</h1>
+  <p class="lead" style="font-size:0.88rem;">
+    軍・隊ごとのチーム編成と選手一覧です。各チームの「おすすめスポット」もあわせてご覧ください。
+  </p>
+
+  <div id="teamsArea" style="margin-top:28px;"><p class="lead">読み込み中…</p></div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">この大会は、任天堂の協賛・提携を受けたものではありません。</div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>
+function teamCardHtml(t) {
+  const cls = t.army === "東" ? "e" : "w";
+  return `
+    <div class="team-card">
+      <div class="team-name ${cls}">${t.team_name}</div>
+      <div class="players">メンバー: ${(t.players || []).join(" / ") || "(未登録)"}</div>
+      <div class="spot-list">
+        ${(t.spots || []).map(s => `
+          <div class="spot-item">
+            <div class="spot-name">📍 ${s.name}</div>
+            <div class="spot-reason">${s.reason || ""}</div>
+            <a class="spot-map-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name)}" target="_blank" rel="noopener">Googleマップで見る ↗</a>
+          </div>
+        `).join("") || "<p class='lead' style='font-size:0.8rem;'>おすすめスポット未登録</p>"}
+      </div>
+    </div>
+  `;
+}
+
+async function render() {
+  try {
+    const teams = await apiGet("teamsFull");
+    const corpsList = ["鉄砲隊", "騎馬隊"];
+    document.getElementById("teamsArea").innerHTML = corpsList.map(corps => {
+      const westTeams = teams.filter(t => t.corps === corps && t.army === "西");
+      const eastTeams = teams.filter(t => t.corps === corps && t.army === "東");
+      const rows = Math.max(westTeams.length, eastTeams.length, 1);
+      let pairsHtml = "";
+      for (let i = 0; i < rows; i++) {
+        pairsHtml += westTeams[i] ? teamCardHtml(westTeams[i]) : "<div></div>";
+        pairsHtml += eastTeams[i] ? teamCardHtml(eastTeams[i]) : "<div></div>";
+      }
+      return `
+        <div style="margin-bottom:32px;">
+          <div class="round-header">${corps}</div>
+          <div class="corps-columns">
+            <div class="corps-col-head">西軍</div>
+            <div class="corps-col-head">東軍</div>
+            ${pairsHtml}
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (err) {
+    document.getElementById("teamsArea").innerHTML = `<p class='lead'>読み込みに失敗しました(${err.message || err})。時間をおいて再度お試しください。</p>`;
+  }
+}
+render();
+</script>
+</body>
+</html>
