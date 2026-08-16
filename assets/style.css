@@ -227,7 +227,8 @@ table.data th { color: var(--muted); font-weight: 500; font-family: var(--font-m
 
 /* ---------- 対戦カード ---------- */
 
-.corps-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.corps-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; min-width: 0; }
+.corps-columns > * { min-width: 0; }
 @media (max-width: 640px) { .corps-columns { grid-template-columns: 1fr; } }
 .corps-col-head { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; letter-spacing: 0.05em; }
 
@@ -335,14 +336,14 @@ tr.row-conflict td { color: var(--alert-deep); font-weight: 700; }
 
 /* ---------- チーム一覧 ---------- */
 
-.team-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; box-sizing: border-box; height: 100%; }
-.team-card .team-name { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 6px; }
+.team-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; box-sizing: border-box; height: 100%; min-width: 0; overflow-wrap: anywhere; }
+.team-card .team-name { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 6px; overflow-wrap: anywhere; }
 .team-card .team-name.e { color: var(--east); }
 .team-card .team-name.w { color: var(--west); }
-.team-card .players { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
-.spot-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.team-card .players { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; overflow-wrap: anywhere; }
+.spot-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 0; }
 @media (max-width: 560px) { .spot-list { grid-template-columns: 1fr; } }
-.spot-item { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.spot-item { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; min-width: 0; overflow-wrap: anywhere; }
 .spot-item .spot-name { font-weight: 700; font-size: 0.85rem; }
 .spot-item .spot-reason { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
 .spot-item .spot-map-link { display: inline-block; margin-top: 6px; font-size: 0.75rem; color: var(--west); text-decoration: none; border-bottom: 1px solid var(--west); }
